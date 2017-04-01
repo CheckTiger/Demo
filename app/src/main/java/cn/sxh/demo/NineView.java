@@ -52,6 +52,17 @@ public class NineView extends View {
             initPoints();
         }
         pointsCanvas(canvas);
+        if (pointList.size() > 0) {
+            Point a = pointList.get(0);
+            for (int i = 0; i < pointList.size(); i++) {
+                Point b = pointList.get(i);
+                LineCanvas(canvas,a,b);
+                a = b;
+            }
+            if (movingNoPoint) {
+                LineCanvas(canvas,a,new Point(movingX,movingY));
+            }
+        }
     }
 
     /**
@@ -74,17 +85,26 @@ public class NineView extends View {
     }
 
     private void LineCanvas(Canvas canvas,Point a,Point b){
+        double lineLength = Point.distance(a,b);
+        float degrees = getDegrees(a,b);
+        canvas.rotate(degrees,a.x,a.y);
         if (a.state == Point.STATE_PRESSED) {
-            matrix.setScale(22,1);
+            matrix.setScale((float) (lineLength/LineNormal.getWidth()),1);
+            matrix.postScale(a.x-LineNormal.getWidth()/2,a.y-LineNormal.getHeight()/2);
+            canvas.drawBitmap(LineNormal,matrix,paint);
         } else {
-
+            matrix.setScale((float) (lineLength/LineError.getWidth()),1);
+            matrix.postScale(a.x-LineError.getWidth()/2,a.y-LineError.getHeight()/2);
+            canvas.drawBitmap(LineError,matrix,paint);
         }
+        canvas.rotate(-degrees,a.x,a.y);
     }
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         movingX = event.getX();
         movingY = event.getY();
         movingNoPoint = false;
+        isFinish = false;
         Point point = null;
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
@@ -136,6 +156,10 @@ public class NineView extends View {
         }
     }
     public void  resetPoint(){
+        for (int i = 0; i < pointList.size(); i++) {
+            Point point = pointList.get(i);
+            point.state = Point.STATE_NORMAL;
+        }
         pointList.clear();
     }
     //绘制错误
@@ -190,6 +214,8 @@ public class NineView extends View {
         points[2][2] = new Point(offsetsX + width - width / 4, offsetsY + width - width / 4);
         //图片资源的半径
         bitmapR = pointNormal.getHeight()/2;
+        //初始化完成
+        isInit = true;
     }
 
 
@@ -226,6 +252,26 @@ public class NineView extends View {
         public static double distance(Point a,Point b){
             return Math.sqrt(Math.abs(a.x - b.x) * Math.abs(a.x - b.x) + Math.abs(a.y - b.y) * Math.abs(a.y - b.y));
         }
-
+    }
+    public static float getDegrees(Point a,Point b){
+        float ax = a.x;
+        float ay = a.y;
+        float bx = b.x;
+        float by = b.y;
+        float degress = 0;
+        if (ax == bx) {
+            if (by > ay) {
+                degress = 90;
+            } else if (by < ay) {
+                degress = 270;
+            }
+        } else if (by == ay) {
+            if (bx > ax) {
+                degress = 0;
+            } else if (bx < ax) {
+                degress = 180;
+            }
+        }
+        return  degress;
     }
 }
