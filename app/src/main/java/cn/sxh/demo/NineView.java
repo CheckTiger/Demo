@@ -65,6 +65,7 @@ public class NineView extends View {
         }
     }
 
+
     /**
      * 绘制到画布
      * @param canvas
