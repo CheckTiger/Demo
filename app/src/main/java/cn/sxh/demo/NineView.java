@@ -7,6 +7,7 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -56,6 +57,7 @@ public class NineView extends View {
             Point a = pointList.get(0);
             for (int i = 0; i < pointList.size(); i++) {
                 Point b = pointList.get(i);
+                Log.i("TAG--B","------"+b.x+"------"+b.y);
                 LineCanvas(canvas,a,b);
                 a = b;
             }
@@ -90,12 +92,14 @@ public class NineView extends View {
         float degrees = getDegrees(a,b);
         canvas.rotate(degrees,a.x,a.y);
         if (a.state == Point.STATE_PRESSED) {
-            matrix.setScale((float) (lineLength/LineNormal.getWidth()),1);
-            matrix.postScale(a.x-LineNormal.getWidth()/2,a.y-LineNormal.getHeight()/2);
+            matrix.setScale((float) (lineLength / LineNormal.getWidth()), 1);
+//            matrix.postTranslate(a.x - LineNormal.getWidth() / 2, a.y - LineNormal.getHeight() / 2);
+            matrix.postTranslate(a.x, a.y - LineNormal.getHeight() / 2);
             canvas.drawBitmap(LineNormal,matrix,paint);
         } else {
-            matrix.setScale((float) (lineLength/LineError.getWidth()),1);
-            matrix.postScale(a.x-LineError.getWidth()/2,a.y-LineError.getHeight()/2);
+            matrix.setScale((float) (lineLength / LineError.getWidth()), 1);
+//            matrix.postTranslate(a.x - LineError.getWidth() / 2, a.y - LineError.getHeight() / 2);
+            matrix.postTranslate(a.x, a.y - LineError.getHeight() / 2);
             canvas.drawBitmap(LineError,matrix,paint);
         }
         canvas.rotate(-degrees,a.x,a.y);
@@ -259,20 +263,21 @@ public class NineView extends View {
         float ay = a.y;
         float bx = b.x;
         float by = b.y;
-        float degress = 0;
-        if (ax == bx) {
+        float degrees = 0;
+        if (ax == bx)
+        {
             if (by > ay) {
-                degress = 90;
+                degrees = 90;
             } else if (by < ay) {
-                degress = 270;
+                degrees = 270;
             }
         } else if (by == ay) {
             if (bx > ax) {
-                degress = 0;
+                degrees = 0;
             } else if (bx < ax) {
-                degress = 180;
+                degrees = 180;
             }
         }
-        return  degress;
+        return  degrees;
     }
 }
